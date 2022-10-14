@@ -130,8 +130,8 @@ static int node_remove(node_t *node, socket_t sfd)
                node->next = current->next;
                node_free(current);
                match = true;
-           }  
-           node = node->next;  
+           } else  
+               node = node->next;  
        }
    }
    return match;       
@@ -259,7 +259,6 @@ static int echo_accept(node_t *current, node_t **client, int fdclose)
    unsigned long mode = 1;
    int sinlen;
    int result;
-
    node_t *cl = NULL;
    
    sfd = accept(current->sfd, NULL, NULL);
@@ -310,9 +309,9 @@ static int echo_recv(node_t *current)
            err = WSAGetLastError();
            if (err != 10035)
                 current->fdclose = true;
-       } else if (result == 0)
+       } else if (result == 0) {
            current->fdclose = true;
-       else if (result > 0) {
+       } else if (result > 0) {
            current->buffer->length += result;
            current->rx += result; 
        }   
@@ -457,7 +456,8 @@ int echo_listen(const char *server, unsigned short port, int timeout, int debug)
                    if (FD_ISSET(current->sfd, &rdfdset)) {
                        node_t *client = NULL;
                        int rc;
-                       nready--;                              
+                       nready--;      
+                       if (count < (MAX_NODE_COUNT - 1))                                               
                        rc = echo_accept(current, &client, count > (MAX_NODE_COUNT - 1));  
                        if (rc == ECHO_EOK) {
                            log_trace("[%s] Accepted node id=0x%04x %s:%u\n", unix_epoch(), 
@@ -481,8 +481,8 @@ int echo_listen(const char *server, unsigned short port, int timeout, int debug)
                        rc = echo_recv(current); 
                        if (rc == SOCKET_ERROR || rc == 0) {
                            log_trace("[%s] Disconnected node id=0x%04x %s:%u %u %u\n", 
-                                 unix_epoch(),current->sfd,inet_ntoa(current->sin.sin_addr), 
-                                 current->sin.sin_port, current->rx, current->sx); 
+                               unix_epoch(),current->sfd,inet_ntoa(current->sin.sin_addr), 
+                               current->sin.sin_port, current->rx, current->sx); 
                        }                         
                    }
                }
